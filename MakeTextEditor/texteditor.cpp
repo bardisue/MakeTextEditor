@@ -14,7 +14,7 @@ public:
     }
 private:
     void initEditor() {
-        string context;
+        string context;¤©¤¤¤©¤¤
         ifstream myfile("test.txt");
         if (myfile.is_open())
         {
