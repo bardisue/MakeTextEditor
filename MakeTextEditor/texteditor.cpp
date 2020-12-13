@@ -234,7 +234,7 @@ class Insert : public excuteStrategy {
             fullContents[insertPage].insert(fullContents[insertPage].begin() + insertPoisition, insertWord);
             makeSFI(insertPage);
             showContext(firstPage, lastPage);
-            makeConsole("(입력메세지)");
+            makeConsole("삽입완료했습니다.");
         }
         else {
             showContext(firstPage, lastPage);
@@ -274,7 +274,7 @@ class Delete : public excuteStrategy {
             fullContents[insertPage].erase(fullContents[insertPage].begin() + insertPoisition);
             makeSFD(insertPage);
             showContext(firstPage, lastPage);
-            makeConsole("(입력메세지)");
+            makeConsole("삭제완료했습니다.");
         }
         else {
             showContext(firstPage, lastPage);
@@ -297,12 +297,9 @@ class Change : public excuteStrategy {
             makeConsole("요소의 개수를 확인해주십시오");
             return;
         }
-        while (getline(ss, stringBuffer, ',')) {
-            atribute.push_back(stringBuffer);
-        }
         for (int i = 0; i < fullContents.size(); i++) {
             for (int j = 0; j < fullContents[i].size(); j++) {
-                if (fullContents[j].size() == 0) {
+                if (fullContents[i].size() == 0) {
                     break;
                 }
                 if (fullContents[i][j] == atribute[0]+ " ") {
@@ -313,17 +310,72 @@ class Change : public excuteStrategy {
         makeSFD(0);
         makeSFI(0);
         showContext(firstPage, lastPage);
-        makeConsole("(입력메세지)");
+        makeConsole("두 요소를 변경하였습니다.");
     }
 };
 class Search : public excuteStrategy {
     void excute() {
+        system("cls");
+        istringstream ss(strategy);
+        string stringBuffer;
+        vector<string> atribute;
+        atribute.clear();
+        while (getline(ss, stringBuffer, ',')) {
+            atribute.push_back(stringBuffer);
+        }
+        if (atribute.size() != 1) {
+            showContext(firstPage, lastPage);
+            makeConsole("요소의 개수를 확인해주십시오");
+            return;
+        }
 
+        int count = 0;
+        for (int i = 0; i < fullContents.size(); i++) {
+            for (int j = 0; j < fullContents[i].size(); j++) {
+                if (fullContents[i].size() == 0) {
+                    break;
+                }
+                if (fullContents[i][j] == atribute[0] + " ") {
+                    firstPage = i;
+                    if (i + 20 <= fullContents.size()) {
+                        lastPage = i + 20;
+                    }
+                    else {
+                        lastPage = fullContents.size();
+                    }
+                    count += 1;
+                }
+            }
+        }
+        if (count == 0) {
+            showContext(firstPage, lastPage);
+            makeConsole("단어를 찾지 못했습니다.");
+        }
+        else {
+            showContext(firstPage, lastPage);
+            makeConsole("검색을 마쳤습니다.");
+        }
     }
 };
 class TextQ : public excuteStrategy {
     void excute() {
-
+        std::ofstream out("test.txt");
+        for (int i = 0; i < fullContents.size(); i++) {
+            for (int j = 0; j < fullContents[i].size(); j++) {
+                if (fullContents[i].size() == 0) {
+                    break;
+                }
+                out << fullContents[i][j];
+            }
+        }
+        exit(0);
+    }
+};
+class Others : public excuteStrategy {
+    void excute() {
+        system("cls");
+        showContext(firstPage, lastPage);
+        makeConsole("지원하지 않는 명령어입니다.");
     }
 };
 
@@ -338,6 +390,7 @@ int main() {
     excuteStrategy* change = new Change;
     excuteStrategy* search = new Search;
     excuteStrategy* textQ = new TextQ;
+    excuteStrategy* others = new Others;
     textEditor *texteditor = new textEditor(defal);
     while (1) {
         switch (strategy[0])
@@ -365,7 +418,18 @@ int main() {
             texteditor->setExcuteStrategy(change);
             texteditor->excute();
             break;
+        case 's':
+            strategy = strategy.substr(2, strategy.size() - 3);
+            texteditor->setExcuteStrategy(search);
+            texteditor->excute();
+            break;
+        case 't':
+            texteditor->setExcuteStrategy(textQ);
+            texteditor->excute();
+            break;
         default:
+            texteditor->setExcuteStrategy(others);
+            texteditor->excute();
             break;
         }
     }
